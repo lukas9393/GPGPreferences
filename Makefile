@@ -8,6 +8,9 @@ all: $(PRODUCT)
 $(PRODUCT): Source/* Resources/* Resources/*/* $(PROJECT).xcodeproj
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) build $(XCCONFIG)
 
+debug: Source/* Resources/* Resources/*/* $(PROJECT).xcodeproj
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration Debug build $(XCCONFIG)
+
 clean:
 	rm -rf "./build"
 	# Cleanup Libmacgpg if necessary.

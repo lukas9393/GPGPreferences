@@ -117,20 +117,7 @@ affectedComponent=_affectedComponent, privateDiscussion=_privateDiscussion;
 	[fieldsString appendFormat:@"%@email%@%@\r\n--%@\r\n", dispo1, dispo2, email, boundry];
 	[fieldsString appendFormat:@"%@subject%@%@\r\n--%@\r\n", dispo1, dispo2, subject, boundry];
 	[fieldsString appendFormat:@"%@message%@%@\r\n--%@\r\n", dispo1, dispo2, message, boundry];
-	[fieldsString appendFormat:@"%@private%@%@\r\n--%@", dispo1, dispo2, privateDiscussion ? @"1" : @"0", boundry];
-	
-    // Fetch support plan information if available.
-	NSDictionary *activationInfo = [self supportPlanInfo];
-	if([[activationInfo valueForKey:@"Active"] boolValue]) {
-        if([[activationInfo valueForKey:@"ActivationEmail"] length]) {
-            [fieldsString appendFormat:@"\r\n%@support_plan_email%@%@\r\n--%@", dispo1, dispo2, activationInfo[@"ActivationEmail"], boundry];
-        }
-        if([[activationInfo valueForKey:@"ActivationCode"] length]) {
-            // Last field, as it ends with --
-            [fieldsString appendFormat:@"\r\n%@support_plan_activation_code%@%@\r\n--%@", dispo1, dispo2, activationInfo[@"ActivationCode"], boundry];
-        }
-    }
-    [fieldsString appendString:@"--\r\n"];
+ 	[fieldsString appendFormat:@"%@private%@%@\r\n--%@--\r\n", dispo1, dispo2, privateDiscussion ? @"1" : @"0", boundry];
     
 	[postData appendData:[fieldsString dataUsingEncoding:NSUTF8StringEncoding]];
 	
@@ -491,13 +478,6 @@ affectedComponent=_affectedComponent, privateDiscussion=_privateDiscussion;
 				[infoString appendFormat:@"\t%@", commit];
 			}
 
-			if([name isEqualToString:@"GPG Mail"]) {
-				NSString *supportPlanStatus = [self humanReadableSupportPlanStatus];
-				if(supportPlanStatus) {
-					[infoString appendFormat:@"\t%@", supportPlanStatus];
-				}
-			}
-
 			[infoString appendString:@"\n"];
 
 		} else {
@@ -506,36 +486,6 @@ affectedComponent=_affectedComponent, privateDiscussion=_privateDiscussion;
 	}
 
 	return infoString;
-}
-
-- (NSDictionary *)supportPlanInfo {
-	GPGTaskHelperXPC *xpc = [[GPGTaskHelperXPC alloc] init];
-	NSDictionary *activationInfo = nil;
-	[xpc validSupportContractAvailableForProduct:@"GPGMail" activationInfo:&activationInfo];
-	return activationInfo;
-}
-
-- (NSString *)humanReadableSupportPlanStatus {
-	// Fetch trial or activated status for GPG Mail.
-	if(![[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10,13,0}]) {
-		return nil;
-	}
-	NSDictionary *supportPlanInfo = [self supportPlanInfo];
-	NSString *supportPlanStatus = @"N/A";
-	if([[supportPlanInfo valueForKey:@"Active"] boolValue] && [[supportPlanInfo valueForKey:@"ActivationCode"] length]) {
-		supportPlanStatus = @"Active Support Plan";
-	}
-	else if(![supportPlanInfo valueForKey:@"ActivationRemainingTrialDays"]) {
-		supportPlanStatus = @"Trial not yet started";
-	}
-	else if([supportPlanInfo valueForKey:@"ActivationRemainingTrialDays"] && [[supportPlanInfo valueForKey:@"ActivationRemainingTrialDays"] integerValue] <= 0) {
-		supportPlanStatus = @"Trial Expired";
-	}
-	else if([[supportPlanInfo valueForKey:@"ActivationRemainingTrialDays"] integerValue] > 0) {
-		supportPlanStatus = [NSString stringWithFormat:@"%@ trial days remaining", [supportPlanInfo valueForKey:@"ActivationRemainingTrialDays"]];
-	}
-
-	return supportPlanStatus;
 }
 
 - (NSAttributedString *)attributedVersions {
@@ -557,12 +507,6 @@ affectedComponent=_affectedComponent, privateDiscussion=_privateDiscussion;
 			
 			if (commit.length > 1) {
 				[infoString appendFormat:@"\t%@", commit];
-			}
-			if([name isEqualToString:@"GPG Mail"]) {
-				NSString *supportPlanStatus = [self humanReadableSupportPlanStatus];
-				if(supportPlanStatus) {
-					[infoString appendFormat:@"\t%@", supportPlanStatus];
-				}
 			}
 			[infoString appendString:@"\n"];
 		} else {

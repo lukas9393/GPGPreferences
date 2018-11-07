@@ -36,13 +36,13 @@ cd ..
 
 #### Build
 ```bash
-make
+make debug
 ```
 
 #### Install
 Copy Libmacgpg.framework from Dependencies/Libmacgpg/build/Release/ to ~/Library/Frameworks.
 
-After that copy the GPGPreferences.prefPane file from build/Release/GPGPreferences.prefPane to ~/Library/PreferencePanes/, re-start System Preferences and enjoy.
+After that copy the GPGPreferences.prefPane file from build/Debug/GPGPreferences.prefPane to /Library/PreferencePanes/, re-start System Preferences and enjoy.
 
 System Requirements
 -------------------
